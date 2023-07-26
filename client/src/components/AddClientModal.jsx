@@ -4,6 +4,8 @@ import Modal from 'react-bootstrap/Modal';
 import {useState} from "react";
 import {FaUser} from 'react-icons/fa'
 import {useMutation} from "@apollo/client";
+import { ADD_CLIENT } from "../mutations/clientMutations";
+import {GET_CLIENTS} from "../queries/clientQueries";
 
 const AddClientModal = () => {
     const [show, setShow] = useState(false);
@@ -11,6 +13,32 @@ const AddClientModal = () => {
 
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
+
+    const [addClient] = useMutation(ADD_CLIENT, {
+        variables: formData,
+        update(cache, { data: { addClient } }) {
+            const { clients } = cache.readQuery({
+                query: GET_CLIENTS
+            })
+            cache.writeQuery({
+                query: GET_CLIENTS,
+                data: { clients: [...clients, addClient] },
+            })
+        }
+    })
+
+    const onSubmit = (e) => {
+        e.preventDefault()
+
+        const empty = (element) => element.length === 0
+        const isObjectEmpty = Object.entries(formData).map(item => item.some(empty))
+
+        if(isObjectEmpty.includes(true)) {
+            return;
+        }
+
+        addClient(formData)
+    }
 
     return (
         <>
@@ -26,7 +54,7 @@ const AddClientModal = () => {
                     <Modal.Title>Add Client</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    <form className="mb-3">
+                    <form className="mb-3" onSubmit={onSubmit}>
                         <label className="form-label">Name</label>
                         <input
                             type="text"

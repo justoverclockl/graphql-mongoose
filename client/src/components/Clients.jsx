@@ -1,14 +1,14 @@
 import React from 'react';
 import { useQuery } from "@apollo/client";
 import ClientRow from "./ClientRow";
-import {GET_CLIENTS} from "../queries/clientQueries";
+import { GET_CLIENTS } from "../queries/clientQueries";
 import Spinner from "./Spinner";
+import { nanoid } from 'nanoid'
 
 
 
 const Clients = () => {
     const { loading, error, data } = useQuery(GET_CLIENTS)
-    console.log(data)
 
     if (loading) return <Spinner />
     if (error) return <p>Something went wrong</p>
@@ -28,7 +28,7 @@ const Clients = () => {
                     <tbody>
                     {data.clients && data.clients.map((client) => {
                         return (
-                            <ClientRow key={client._id} client={client} />
+                            <ClientRow key={nanoid()} client={client} />
                         )
                     })}
                     </tbody>
